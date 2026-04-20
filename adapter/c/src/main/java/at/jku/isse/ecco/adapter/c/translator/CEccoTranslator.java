@@ -1,5 +1,6 @@
 package at.jku.isse.ecco.adapter.c.translator;
 
+import at.jku.isse.ecco.adapter.c.CWriter;
 import at.jku.isse.ecco.adapter.c.data.FunctionArtifactData;
 import at.jku.isse.ecco.adapter.c.data.LineArtifactData;
 import at.jku.isse.ecco.artifact.Artifact;
@@ -10,7 +11,13 @@ import at.jku.isse.ecco.featuretrace.parser.VevosFileConditionContainer;
 import at.jku.isse.ecco.tree.Node;
 import at.jku.isse.ecco.util.Location;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -97,8 +104,35 @@ public class CEccoTranslator {
             this.checkForFeatureTrace(i, lineNode);
             parentNode.addChild(lineNode);
         }
-        if(location != null)
-            Logger.getAnonymousLogger().info( location.getIndexOfCommit() + " - " +location.getEndLine() + " - " + location.getStartLine() + " - " + location.getCommithash());
+        if(location != null) {
+            Logger.getAnonymousLogger().info(location.getIndexOfCommit() + " - " + location.getStartLine() + " - " + location.getEndLine() + " - " + location.getCommithash());
+            WriteFile(location.getIndexOfCommit() + ";" + location.getStartLine() + ";" + location.getEndLine() + ";" + location.getCommithash() + ";" + location.getConfigurationString() + "\n");
+        }
+    }
+
+    private void WriteFile(String Line) {
+        try {
+            File myObj = new File("C:\\Users\\Dorina\\Desktop\\ThesisWorkFolder\\commithashes.csv");
+            if (myObj.createNewFile()) {
+                System.out.println("File created: " + myObj.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+            //FileWriter myWriter = new FileWriter("C:\\Users\\Dorina\\Desktop\\ThesisWorkFolder\\commithashes.csv");
+            Files.write(Paths.get(myObj.getPath()), Line.getBytes(), StandardOpenOption.APPEND);
+
+            /*for(String commit: commits) {
+                myWriter.write(Integer.toString(counter));
+                myWriter.write(';');
+                counter++;
+                myWriter.write(commit);
+                myWriter.write("\n");
+            }*/
+            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
     private Node.Op createFunctionNode(FunctionStructure functionStructure){

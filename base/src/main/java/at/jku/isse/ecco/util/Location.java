@@ -19,6 +19,7 @@ public class Location implements Persistable {
 
     public Location(int startLine, int endLine, Path filePath, String configurationString){
         this.startLine = startLine;
+        this.endLine = endLine;
         this.filePath = filePath.toString();
         this.setConfigurationString(configurationString);
     }
