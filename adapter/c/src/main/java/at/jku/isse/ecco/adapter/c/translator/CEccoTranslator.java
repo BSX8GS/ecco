@@ -88,6 +88,7 @@ public class CEccoTranslator {
 
     private void addLineNodes(Node.Op parentNode, int startLine, int endLine){
         Location location = null;
+        String fileName = this.path.getFileName().toString();
         for(int i = startLine; i <= endLine; i++){
             String codeLine = this.codeLines[i - 1];
 
@@ -100,13 +101,14 @@ public class CEccoTranslator {
             location.setCommithash(this.gitCommitHash);
             location.setIndexOfCommit(this.gitCommitIndex);
 
+
             Node.Op lineNode = this.createNodeWithLocation(lineArtifactData, location);
             this.checkForFeatureTrace(i, lineNode);
             parentNode.addChild(lineNode);
         }
         if(location != null) {
             Logger.getAnonymousLogger().info(location.getIndexOfCommit() + " - " + location.getStartLine() + " - " + location.getEndLine() + " - " + location.getCommithash());
-            WriteFile(location.getIndexOfCommit() + ";" + location.getStartLine() + ";" + location.getEndLine() + ";" + location.getCommithash() + ";" + location.getConfigurationString() + "\n");
+            WriteFile(fileName + ";" +location.getIndexOfCommit() + ";" + location.getStartLine() + ";" + location.getEndLine() + ";" + location.getCommithash() + ";" + location.getConfigurationString() + "\n");
         }
     }
 
