@@ -19,7 +19,12 @@ import com.google.inject.Inject;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -143,11 +148,22 @@ public class CReader implements ArtifactReader<Path, Set<Node.Op>> {
                            Path relPath,
                            String configuration){
         try {
-            List<String> lineList = Files.readAllLines(absolutePath);
+            //This below prevents the exception and substitutes invalid characters with �.
+            //Useful for evaluating, but not recommended for other purposes
+            CharsetDecoder decoder = StandardCharsets.UTF_8
+                    .newDecoder()
+                    .onMalformedInput(CodingErrorAction.REPLACE)
+                    .onUnmappableCharacter(CodingErrorAction.REPLACE);
+
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(Files.newInputStream(absolutePath), decoder));
+
+            List<String> lineList = reader.lines().toList();
+            //-----------------------------------------------------------------------------
+
+            //List<String> lineList = Files.readAllLines(absolutePath, StandardCharsets.UTF_8);
             String[] lines = lineList.toArray(new String[0]);
             CEccoVisitor translator = new CEccoVisitor(pluginNode, lines, this.entityFactory, fileConditionContainer, relPath, configuration);
-
-            LOGGER.info(this.gitCommitHash + ";" + this.gitCommitIndex);
 
             translator.setGitCommitHash(this.gitCommitHash);
             translator.setGitCommitIndex(this.gitCommitIndex);
